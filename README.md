@@ -1,7 +1,4 @@
 instrument-classify
 ===================
 
-Kevin Chen
-Kyle Fridberg
-Brian Hsu
-Vinay Kanumuri
+A project to classify instruments by sound using Fourier analysis and ML algorithms
