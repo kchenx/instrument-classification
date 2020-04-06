@@ -5,7 +5,7 @@ A project to classify instruments by sound using Fourier analysis and ML algorit
 
 ### Usage
 
-Place all audio files in the appropriate folder in `sounds/`. Then, run `main.py`. The Fourier transform plots will be output in the appropriate folders in `images/`, and data in `fft-data`.
+Place all audio files in the appropriate folder in `sounds/`. Then, run `main.py`. All AIFF, FLAC, and MP3 files will automatically be converted to WAV files. The Fourier transform plots will be output in the appropriate folders in `images/`, and data in `fft-data`.
 
 ### Source files
 
