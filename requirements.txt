@@ -1,5 +1,7 @@
+ffmpeg
 matplotlib
 numpy
+pydub
 jupyter
 scikit-learn
 scipy
