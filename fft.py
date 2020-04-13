@@ -1,67 +1,68 @@
+from collections import defaultdict
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 from scipy.fft import fft, fftfreq
 from scipy.io import wavfile as wav
 from scipy import optimize
-import os
+from scipy.signal import find_peaks
+
 
 # Plot and save the Fourier transform of wav file at `path` to `dst`
-def compute_fft(path, imgdst, datadst = None):
+# Return array of frequency peaks and normalized amplitudes of harmonics
+def compute_fft(path, dst):
     # data processing and fft calculations
+
+    # read in wav file
     rate, data = wav.read(path)
+
+    # only take one audio stream if multiple exist
     try:
         data = data[:, 0]
     except IndexError:
         pass
+
+    # compute FFT, find frequencies and amplitudes
     samples = data.shape[0]
     datafft = fft(data)
     fftabs = abs(datafft)
-    # TO DO: normalization of fft values
-    # TO DO: scaling + shifting of freq values
     freqs = fftfreq(samples, 1/rate)
-    np.savetxt(datadst,
-               np.c_[freqs[:int(freqs.size/2):1000], fftabs[:int(freqs.size/2):1000]],
-               delimiter=",")
 
-    # creating image
+    frequencies = freqs[:int(freqs.size/2)]
+    amplitudes = fftabs[:int(freqs.size/2)]
+
+    # find peaks in the frequency domain (only take peaks a certain amount of max peak)
+    maxpeak = max(amplitudes)
+    peak_indices = find_peaks(amplitudes, prominence=0.1*maxpeak, distance=80)[0]
+
+    peak_freqs = [frequencies[i] for i in peak_indices]
+    peak_amps = [amplitudes[i] for i in peak_indices]
+
+    # plot FFT with peaks and save image
     plt.figure()
     plt.xlim([10, rate/2])
     plt.xscale("log")
     plt.grid(True)
     plt.xlabel("Frequency (Hz)")
     plt.title(path)
-    plt.plot(freqs[:int(freqs.size/2)], fftabs[:int(freqs.size/2)])
-    plt.savefig(imgdst)
+    plt.plot(frequencies, amplitudes)
+    plt.plot(peak_freqs, peak_amps, "xr")
+    plt.savefig(dst)
 
-    # instrument average calculations
-    fftabs = fftabs[:int(freqs.size / 2)]
-    freqs = freqs[:int(freqs.size / 2)]
-    lfreq = 20  # freq bounds
-    ufreq = 20000
-    ind = np.where(np.logical_and(freqs >= lfreq, freqs <= ufreq))
-    return freqs[ind], fftabs[ind]
+    # normalize peaks
+    norm_peak_amps = list(map(lambda peak: peak / peak_amps[0], peak_amps))
+    return norm_peak_amps
+
 
 def compute_all_ffts():
-    piano = []   # initializing instrument average storage TO DO: implement for other instruments
+    instruments = defaultdict(list)  # initializing instrument average storage
     for root, dirs, files in os.walk("sounds"):
         for file in files:
             path = os.path.join(root, file)
             (pre, ext) = os.path.splitext(path)
             if ext in [".wav"]:
                 body = os.path.sep.join(pre.split(os.path.sep)[1:])
-                imgdst = os.path.join("images", body + ".png")
-                datadst = os.path.join("fft-data", body + ".csv")
-                freq, fft = compute_fft(path, imgdst, datadst)
-
-                # instrument average calculations
-                if 'piano' in path:
-                    pass
-                    # TO DO: convert freq, fft (discrete data) to smooth function and append to piano array
-
-                # elif 'xylophone' in path:
-    # avgpiano = np.average(piano, axis=0)
-
-
-
-
-
+                dst = os.path.join("images", body + ".png")
+                norm_peak_amps = compute_fft(path, dst)
+                instruments[root].append(norm_peak_amps)
+    print(instruments)
