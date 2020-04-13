@@ -46,6 +46,7 @@ def compute_fft(path, dst):
     plt.plot(frequencies, amplitudes)
     plt.plot(peak_freqs, peak_amps, "xr")
     plt.savefig(dst)
+    plt.close()
 
     # normalize peaks
     norm_peak_amps = list(map(lambda peak: peak / peak_amps[0], peak_amps))
