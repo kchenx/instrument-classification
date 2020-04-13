@@ -55,11 +55,11 @@ def compute_all_ffts():
 
                 # instrument average calculations
                 if 'piano' in path:
+                    pass
                     # TO DO: convert freq, fft (discrete data) to smooth function and append to piano array
 
                 # elif 'xylophone' in path:
     # avgpiano = np.average(piano, axis=0)
-    pass
 
 
 
