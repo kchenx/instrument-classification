@@ -1,15 +1,13 @@
 from collections import defaultdict
 from matplotlib import pyplot as plt
-import numpy as np
 import os
 from scipy.fft import fft, fftfreq
 from scipy.io import wavfile as wav
-from scipy import optimize
 from scipy.signal import find_peaks
 
 
 # Plot and save the Fourier transform of wav file at `path` to `dst`
-# Return array of frequency peaks and normalized amplitudes of harmonics
+# Return array of normalized amplitudes of harmonics
 def compute_fft(path, dst):
     # data processing and fft calculations
 
@@ -54,8 +52,10 @@ def compute_fft(path, dst):
     return norm_peak_amps
 
 
+# Plot and save the Fourier transform of wav file at `path` to `dst` for all files in `sounds`
+# Return dictionary of normalized harmonic amplitudes per instrument
 def compute_all_ffts():
-    instruments = defaultdict(list)  # initializing instrument average storage
+    instruments = defaultdict(list)
     for root, dirs, files in os.walk("sounds"):
         for file in files:
             path = os.path.join(root, file)
@@ -64,5 +64,6 @@ def compute_all_ffts():
                 body = os.path.sep.join(pre.split(os.path.sep)[1:])
                 dst = os.path.join("images", body + ".png")
                 norm_peak_amps = compute_fft(path, dst)
-                instruments[root].append(norm_peak_amps)
-    print(instruments)
+                instrument = root.split(os.path.sep)[1]
+                instruments[instrument].append(norm_peak_amps)
+    return instruments

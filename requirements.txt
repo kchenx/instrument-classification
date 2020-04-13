@@ -1,8 +1,8 @@
+csv
 ffmpeg
 matplotlib
 numpy
+pandas
 pydub
-jupyter
-scikit-learn
 scipy
 soundfile

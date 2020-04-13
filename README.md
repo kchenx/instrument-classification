@@ -1,7 +1,7 @@
 instrument-classify
 ===================
 
-A project to classify instruments by sound using Fourier analysis and ML algorithms
+A project to classify instruments by sound using Fourier analysis
 
 ### Usage
 
@@ -13,4 +13,5 @@ Place all audio files in the appropriate folder in `sounds/`. Then, run `main.py
 | ----------------- | --------------------------- |
 | main.py           | Main program                |
 | fft.py            | Compute FFT of audio file   |
+| analyzedata.py    | Does data analysis of FFTs  |
 | to-wav.py         | Convert audio files to WAV  |
