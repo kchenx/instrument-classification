@@ -1,4 +1,5 @@
 import csv
+from matplotlib import pyplot as plt
 import numpy as np
 import os
 import pandas as pd
@@ -25,17 +26,54 @@ def analyze_peaks(peaks, dst, instrument):
         writer = csv.writer(f)
         means = [instrument + ' means']
         means.extend(df.mean().values)
-        stds = [instrument + ' stdevs']
-        stds.extend(df.std().values)
+        stdevs = [instrument + ' stdevs']
+        stdevs.extend(df.std().values)
         writer.writerow(means)
-        writer.writerow(stds)
+        writer.writerow(stdevs)
+
+    # clean up data to plot
+    means = means[1:6]
+    stdevs = stdevs[1:6]
+    # if stdev is not meaningful, remove value
+    for i in range(len(stdevs)):
+        if stdevs[i] is float('nan'):
+            float('nan')
+    # append `None` until length is 5
+    while len(means) < 5:
+        means.append(float('nan'))
+    while len(stdevs) < 5:
+        stdevs.append(float('nan'))
+    return means, stdevs
 
 
 # Takes in the output of `compute_all_ffts` and analyzes peaks
 # Input is a dictionary, with keys being instruments and values
 # being a 2D list of normalized peak amplitudes collected per trial
 def analyze_all_peaks(data):
+    # prepare for summary plot
+    pltdata = {}
+
+    # statistical summary of each instrument frequencies
     for instrument in data:
-        print(instrument)
         dst = 'raw-data/' + instrument + '.csv'
-        analyze_peaks(data[instrument], dst, instrument)
+        pltdata[instrument] = analyze_peaks(data[instrument], dst, instrument)
+
+    # set width of bar
+    barWidth = 1 / (len(data) + 2)
+
+    # set position of bar on X axis and make the plot
+    r = np.arange(5)
+    i = 0
+    for instrument in pltdata:
+        plt.bar(x=r, height=pltdata[instrument][0], width=barWidth,
+                yerr=pltdata[instrument][1], capsize=2,
+                edgecolor='white', label=instrument)
+        r = [x + barWidth for x in r]
+
+    # add xticks on the middle of the group bars
+    plt.title('Normalized Harmonic Amplitudes by Instrument')
+    plt.xlabel('Harmonic', fontweight='bold')
+    plt.xticks([r + 2.5 * barWidth for r in range(5)], ['1', '2', '3', '4', '5'])
+    plt.legend()
+    plt.savefig('SUMMARY.png')
+    plt.show()

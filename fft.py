@@ -31,10 +31,15 @@ def compute_fft(path, dst):
 
     # find peaks in the frequency domain (only take peaks a certain amount of max peak)
     maxpeak = max(amplitudes)
-    peak_indices = find_peaks(amplitudes, prominence=0.1*maxpeak, distance=80)[0]
+    peak_indices = find_peaks(amplitudes, prominence=0.03*maxpeak, distance=100)[0]
 
-    peak_freqs = [frequencies[i] for i in peak_indices]
-    peak_amps = [amplitudes[i] for i in peak_indices]
+    peak_freqs = []
+    peak_amps = []
+    for i in peak_indices:
+        # cut out low frequencies (noise from recording)
+        if frequencies[i] >= 100:
+            peak_freqs.append(frequencies[i])
+            peak_amps.append(amplitudes[i])
 
     # plot FFT with peaks and save image
     plt.figure()
